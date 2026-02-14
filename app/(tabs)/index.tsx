@@ -12,15 +12,15 @@ const App = () => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../assets/images/iced-coffee.png")}
+        source={require("../../assets/images/iced-coffee.png")}
         resizeMode="cover"
         style={styles.image}
       >
         <Text style={styles.title}>Coffee Shop</Text>
 
-        <Link style={{ marginHorizontal: "auto" }} href="/explore" asChild>
+        <Link style={{ marginHorizontal: "auto" }} href="/contact" asChild>
           <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Explore</Text>
+            <Text style={styles.buttonText}>Contact Us</Text>
           </Pressable>
         </Link>
       </ImageBackground>
