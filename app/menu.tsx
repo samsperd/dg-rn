@@ -1,12 +1,17 @@
+import MENU_IMAGES from "@/constants/menu-images";
+import { MENU_ITEMS } from "@/constants/menu-items";
 import { Colors } from "@/constants/theme";
 import {
   Appearance,
   FlatList,
+  Image,
   Platform,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MenuScreen() {
   const colorScheme = Appearance.getColorScheme();
@@ -15,9 +20,36 @@ export default function MenuScreen() {
   const styles = createStyles(theme, colorScheme!);
 
   const Container = Platform.OS === "web" ? ScrollView : SafeAreaView;
+
+  const separatorComp = () => <View style={styles.separator} />;
+  const headerComp = () => <Text>Top of List</Text>;
+  const footerComp = () => (
+    <Text style={{ color: theme.text }}>End of Menu</Text>
+  );
+
   return (
     <Container>
-      <FlatList data={[]} renderItem={({ item }) => <></>} />
+      <FlatList
+        data={MENU_ITEMS}
+        keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+        ItemSeparatorComponent={separatorComp}
+        // ListHeaderComponent={headerComp}
+        ListFooterComponent={footerComp}
+        ListFooterComponentStyle={styles.footerComp}
+        ListEmptyComponent={<Text>No Items</Text>}
+        renderItem={({ item }) => (
+          <View style={styles.row}>
+            <View style={styles.menuTextRow}>
+              <Text style={[styles.menuItemTitle, styles.menuItemText]}>
+                {item.title}
+              </Text>
+            </View>
+            <Image style={styles.menuImage} source={MENU_IMAGES[item.id - 1]} />
+          </View>
+        )}
+      />
     </Container>
   );
 }
@@ -30,6 +62,54 @@ function createStyles(
     container: {
       flex: 1,
       backgroundColor: theme.background,
+    },
+    contentContainer: {
+      paddingTop: 10,
+      paddingBottom: 20,
+      paddingHorizontal: 12,
+      backgroundColor: theme.background,
+    },
+    separator: {
+      height: 1,
+      backgroundColor: colorScheme === "dark" ? "papayawhip" : "#000",
+      width: "50%",
+      maxWidth: 300,
+      marginHorizontal: "auto",
+      marginBottom: 10,
+    },
+    footerComp: {
+      marginHorizontal: "auto",
+    },
+    row: {
+      flexDirection: "row",
+      width: "100%",
+      maxWidth: 600,
+      height: 100,
+      marginBottom: 10,
+      borderStyle: "solid",
+      borderWidth: 1,
+      borderColor: colorScheme === "dark" ? "papayawhip" : "#000",
+      borderRadius: 20,
+      overflow: "hidden",
+      marginHorizontal: "auto",
+    },
+    menuTextRow: {
+      width: "65%",
+      paddingTop: 10,
+      paddingLeft: 10,
+      paddingRight: 5,
+      flexGrow: 1,
+    },
+    menuItemTitle: {
+      fontSize: 18,
+      textDecorationLine: "underline",
+    },
+    menuItemText: {
+      color: theme.text,
+    },
+    menuImage: {
+      width: 100,
+      height: 100,
     },
   });
 }
