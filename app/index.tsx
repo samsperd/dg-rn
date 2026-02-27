@@ -1,5 +1,8 @@
+import ListItem from "@/components/list-item";
+import TodoInputContainer from "@/components/todo-input-container";
 import { Colors } from "@/constants/Colors";
 import { data } from "@/data/todos";
+import { Todo } from "@/types/Todo";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -8,66 +11,82 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 
 export default function Index() {
   const colorScheme = Appearance.getColorScheme();
-  const [newTodo, setNewTodo] = useState({
-    title: "",
-    time: "",
-  });
+  const [todos, setTodos] = useState(data.sort((a, b) => b.id - a.id));
+
+  const [editScreenVisible, setEditScreenVisible] = useState(false);
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
   const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
   const styles = createStyles(theme, colorScheme!);
 
   const separatorComp = () => <View style={styles.separator} />;
 
-  const handleNewTodo = (text: string) => {
-    setNewTodo({ ...newTodo, title: text });
+  const handleUpdateTodo = (id: number, updates: Partial<Todo>) => {
+    setTodos(
+      todos.map((todo) => (todo.id === id ? { ...todo, ...updates } : todo)),
+    );
+  };
+
+  const handleEditTodo = (todo: Todo) => {
+    setEditScreenVisible(true);
+    setSelectedTodo(todo);
+  };
+
+  const confirmDelete = (id: number) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+    setSelectedTodo(null);
+    setEditScreenVisible(false);
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          onChangeText={handleNewTodo}
-          value={newTodo.title}
-          placeholder="Enter title"
-          keyboardType="default"
-          placeholderTextColor={theme.text}
-        />
-
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Add</Text>
-        </Pressable>
-      </View>
+      <TodoInputContainer />
 
       <View style={styles.listSection}>
         <FlatList
-          data={data}
+          data={todos}
           showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={separatorComp}
+          contentContainerStyle={styles.listContainer}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.list}>
-              <View style={styles.listItem}>
-                <Text style={styles.listItemText}>{item.title}</Text>
-                <Text style={styles.listItemSmallText}>{item.timestamp}</Text>
-              </View>
+              <ListItem
+                item={item}
+                onUpdateTodo={handleUpdateTodo}
+                editScreenVisible={editScreenVisible}
+                selectedTodo={selectedTodo}
+              />
+
               <View style={styles.listItemActions}>
-                <Pressable>
-                  <Ionicons name="pencil" size={20} color="black" />
-                </Pressable>
-                <Pressable>
-                  <Ionicons name="trash" size={20} color="red" />
-                </Pressable>
+                {editScreenVisible && selectedTodo?.id === item.id ? (
+                  <Pressable
+                    onPress={() => {
+                      setEditScreenVisible(false);
+                      setSelectedTodo(null);
+                    }}
+                    style={styles.button}
+                  >
+                    <Text>Done</Text>
+                  </Pressable>
+                ) : (
+                  <>
+                    <Pressable onPress={() => handleEditTodo(item)}>
+                      <Ionicons name="pencil" size={20} color="black" />
+                    </Pressable>
+                    <Pressable onPress={() => confirmDelete(item.id)}>
+                      <Ionicons name="trash" size={20} color="red" />
+                    </Pressable>
+                  </>
+                )}
               </View>
             </View>
           )}
-          ItemSeparatorComponent={separatorComp}
-          contentContainerStyle={styles.listContainer}
-          keyExtractor={(item, index) => index.toString()}
         />
       </View>
     </View>
@@ -83,37 +102,17 @@ function createStyles(
       flex: 1,
       // flexDirection: "column",
     },
-    inputContainer: {
-      flexDirection: "row",
-      width: "100%",
-      padding: 10,
-      gap: 10,
-    },
-    input: {
-      borderColor: "#dddddd",
-      borderWidth: 1,
-      padding: 10,
-      color: "black",
-      width: "75%",
-      backgroundColor: colorScheme === "dark" ? "#dddddd" : "#000",
-    },
     button: {
-      backgroundColor: "#000",
+      backgroundColor: "#aaa",
       padding: 10,
       borderRadius: 10,
       height: 45,
-      width: "20%",
       justifyContent: "center",
       alignItems: "center",
     },
-    buttonText: {
-      color: "white",
-      fontSize: 16,
-    },
-
     listSection: {
       flex: 1,
-      backgroundColor: "#ddd",
+      backgroundColor: "#eee",
     },
 
     listContainer: {
@@ -134,15 +133,7 @@ function createStyles(
       marginHorizontal: "auto",
       marginVertical: 10,
     },
-    listItem: {
-      gap: 2,
-    },
-    listItemText: {
-      fontSize: 16,
-    },
-    listItemSmallText: {
-      fontSize: 12,
-    },
+
     listItemActions: {
       flexDirection: "row",
       alignItems: "center",
