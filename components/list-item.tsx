@@ -5,7 +5,7 @@ import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
 
 interface ListItemProps {
   item: Todo;
-  onUpdateTodo: (id: number, updates: Partial<Todo>) => void;
+  onUpdateTodo: (updates: Partial<Todo>) => void;
   editScreenVisible: boolean;
   selectedTodo: Todo | null;
 }
@@ -17,11 +17,11 @@ const ListItem = ({
   selectedTodo,
 }: ListItemProps) => {
   const handleTitleChange = (title: string) => {
-    onUpdateTodo(item.id, { title });
+    onUpdateTodo({ title });
   };
 
   const handleCompletedChange = (completed: boolean) => {
-    onUpdateTodo(item.id, { completed });
+    onUpdateTodo({ completed });
   };
 
   const isEditing = editScreenVisible && selectedTodo?.id === item.id;
@@ -31,16 +31,16 @@ const ListItem = ({
       <View style={styles.listItemIcon}>
         <Switch
           trackColor={{ false: "#767577", true: "black" }}
-          thumbColor={item.completed ? "green" : "#f4f3f4"}
+          thumbColor={selectedTodo?.completed ? "green" : "#f4f3f4"}
           ios_backgroundColor="#3e3e3e"
           onValueChange={handleCompletedChange}
-          value={item.completed}
+          value={selectedTodo?.completed}
         />
       </View>
 
       <View style={styles.listItemTexts}>
         <TextInput
-          value={item.title}
+          value={selectedTodo?.title}
           style={[styles.listItemText, styles.listItemInput]}
           onChangeText={handleTitleChange}
           placeholder="Enter title"

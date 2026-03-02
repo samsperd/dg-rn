@@ -1,5 +1,4 @@
 import { Colors } from "@/constants/Colors";
-import { data as todos } from "@/data/todos";
 import React, { useState } from "react";
 import {
   Appearance,
@@ -10,7 +9,11 @@ import {
   View,
 } from "react-native";
 
-const TodoInputContainer = () => {
+const TodoInputContainer = ({
+  onAddTodo,
+}: {
+  onAddTodo: (title: string) => void;
+}) => {
   const [newTodo, setNewTodo] = useState("");
   const colorScheme = Appearance.getColorScheme();
 
@@ -19,17 +22,7 @@ const TodoInputContainer = () => {
 
   const handleNewTodo = (text: string) => {
     if (text.trim()) {
-      const newId = todos.length > 0 ? todos[0].id + 1 : 1;
-
-      //   setTodos([
-      //     ...todos,
-      //     {
-      //       id: newId,
-      //       title: text,
-      //       completed: false,
-      //       timestamp: new Date().toISOString(),
-      //     },
-      //   ]);
+      onAddTodo(text);
 
       setNewTodo("");
     }
@@ -70,9 +63,9 @@ function createStyles(
       borderColor: "#dddddd",
       borderWidth: 1,
       padding: 10,
-      color: "black",
+      color: theme.text,
       width: "75%",
-      backgroundColor: colorScheme === "dark" ? "#dddddd" : "#000",
+      backgroundColor: colorScheme === "dark" ? "#000" : "#dddddd",
     },
 
     button: {
