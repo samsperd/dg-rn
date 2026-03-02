@@ -20,6 +20,7 @@ export default function Index() {
 
   const [editScreenVisible, setEditScreenVisible] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
   const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
   const styles = createStyles(theme, colorScheme!);
@@ -32,9 +33,15 @@ export default function Index() {
     );
   };
 
+  const handleEditingTodoChange = (updates: Partial<Todo>) => {
+    if (!editingTodo) return;
+    setEditingTodo({ ...editingTodo, ...updates });
+  };
+
   const handleEditTodo = (todo: Todo) => {
     setEditScreenVisible(true);
     setSelectedTodo(todo);
+    setEditingTodo(todo);
   };
 
   const confirmDelete = (id: number) => {
@@ -43,9 +50,22 @@ export default function Index() {
     setEditScreenVisible(false);
   };
 
+  const addNewTodo = (title: string) => {
+    const newId = todos.length > 0 ? todos[0].id + 1 : 1;
+    setTodos([
+      {
+        id: newId,
+        title,
+        completed: false,
+        timestamp: new Date().toISOString(),
+      },
+      ...todos,
+    ]);
+  };
+
   return (
     <View style={styles.container}>
-      <TodoInputContainer />
+      <TodoInputContainer onAddTodo={addNewTodo} />
 
       <View style={styles.listSection}>
         <FlatList
@@ -58,17 +78,21 @@ export default function Index() {
             <View style={styles.list}>
               <ListItem
                 item={item}
-                onUpdateTodo={handleUpdateTodo}
+                onUpdateTodo={handleEditingTodoChange}
                 editScreenVisible={editScreenVisible}
-                selectedTodo={selectedTodo}
+                selectedTodo={editingTodo}
               />
 
               <View style={styles.listItemActions}>
                 {editScreenVisible && selectedTodo?.id === item.id ? (
                   <Pressable
                     onPress={() => {
+                      if (selectedTodo && editingTodo) {
+                        handleUpdateTodo(selectedTodo.id, editingTodo);
+                      }
                       setEditScreenVisible(false);
                       setSelectedTodo(null);
+                      setEditingTodo(null);
                     }}
                     style={styles.button}
                   >
