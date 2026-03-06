@@ -101,7 +101,7 @@ export default function Index() {
                 ) : (
                   <>
                     <Pressable onPress={() => handleEditTodo(item)}>
-                      <Ionicons name="pencil" size={20} color="black" />
+                      <Ionicons name="pencil" size={20} color={theme.text} />
                     </Pressable>
                     <Pressable onPress={() => confirmDelete(item.id)}>
                       <Ionicons name="trash" size={20} color="red" />
@@ -125,6 +125,7 @@ function createStyles(
     container: {
       flex: 1,
       // flexDirection: "column",
+      backgroundColor: theme.background,
     },
     button: {
       backgroundColor: "#aaa",
@@ -136,7 +137,6 @@ function createStyles(
     },
     listSection: {
       flex: 1,
-      backgroundColor: "#eee",
     },
 
     listContainer: {
