@@ -12,7 +12,14 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider style={styles.container}>
       <Stack>
-        <Stack.Screen name="index" options={{ title: "Todo App" }} />
+        <Stack.Screen
+          name="index"
+          options={{
+            title: "Todo App",
+            headerTintColor: colorScheme === "dark" ? theme.tint : "#000",
+            headerStyle: { backgroundColor: theme.background },
+          }}
+        />
       </Stack>
     </SafeAreaProvider>
   );
