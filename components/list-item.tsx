@@ -1,7 +1,15 @@
+import { Colors } from "@/constants/Colors";
 import { Todo } from "@/types/Todo";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import {
+  Appearance,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 interface ListItemProps {
   item: Todo;
@@ -16,6 +24,10 @@ const ListItem = ({
   editScreenVisible,
   selectedTodo,
 }: ListItemProps) => {
+  const colorScheme = Appearance.getColorScheme();
+  const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const styles = createStyles(theme, colorScheme!);
+
   const handleTitleChange = (title: string) => {
     onUpdateTodo({ title });
   };
@@ -67,28 +79,36 @@ const ListItem = ({
 
 export default ListItem;
 
-const styles = StyleSheet.create({
-  listItem: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  listItemTexts: {
-    gap: 2,
-  },
-  listItemIcon: {
-    borderRadius: "100%",
-    padding: 5,
-  },
-  listItemText: {
-    fontSize: 16,
-  },
-  listItemSmallText: {
-    fontSize: 12,
-  },
-  listItemInput: {
-    flex: 1,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    padding: 10,
-  },
-});
+function createStyles(
+  theme: typeof Colors.light | typeof Colors.dark,
+  colorScheme: string,
+) {
+  return StyleSheet.create({
+    listItem: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    listItemTexts: {
+      gap: 2,
+      color: theme.text,
+    },
+    listItemIcon: {
+      borderRadius: "100%",
+      padding: 5,
+    },
+    listItemText: {
+      fontSize: 16,
+      color: theme.text,
+    },
+    listItemSmallText: {
+      fontSize: 12,
+      color: theme.text,
+    },
+    listItemInput: {
+      flex: 1,
+      borderColor: "#ccc",
+      borderWidth: 1,
+      padding: 10,
+    },
+  });
+}

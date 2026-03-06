@@ -56,11 +56,12 @@ function createStyles(
       flexDirection: "row",
       width: "100%",
       padding: 10,
+      height: 65,
       gap: 10,
     },
 
     input: {
-      borderColor: "#dddddd",
+      borderColor: colorScheme === "dark" ? "#000" : "#dddddd",
       borderWidth: 1,
       padding: 10,
       color: theme.text,
