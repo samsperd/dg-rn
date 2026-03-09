@@ -3,8 +3,12 @@ import { ThemeContext } from "@/context/ThemeContext";
 import { Todo } from "@/types/Todo";
 import { Inter_500Medium_Italic, useFonts } from "@expo-google-fonts/inter";
 import { Ionicons } from "@expo/vector-icons";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import React, { useContext } from "react";
 import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
+
+dayjs.extend(relativeTime);
 
 interface ListItemProps {
   item: Todo;
@@ -73,7 +77,9 @@ const ListItem = ({
 
       <View style={styles.listItemTexts}>
         <Text style={styles.listItemText}>{item.title}</Text>
-        <Text style={styles.listItemSmallText}>{item.timestamp}</Text>
+        <Text style={styles.listItemSmallText}>
+          {dayjs(item.timestamp).fromNow()}
+        </Text>
       </View>
     </View>
   );
