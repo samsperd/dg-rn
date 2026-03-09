@@ -1,15 +1,10 @@
 import { Colors } from "@/constants/Colors";
+import { ThemeContext } from "@/context/ThemeContext";
 import { Todo } from "@/types/Todo";
+import { Inter_500Medium_Italic, useFonts } from "@expo-google-fonts/inter";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import {
-  Appearance,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import React, { useContext } from "react";
+import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
 
 interface ListItemProps {
   item: Todo;
@@ -24,9 +19,12 @@ const ListItem = ({
   editScreenVisible,
   selectedTodo,
 }: ListItemProps) => {
-  const colorScheme = Appearance.getColorScheme();
-  const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const { colorScheme, theme } = useContext(ThemeContext);
   const styles = createStyles(theme, colorScheme!);
+
+  const [loaded, error] = useFonts({
+    Inter_500Medium_Italic,
+  });
 
   const handleTitleChange = (title: string) => {
     onUpdateTodo({ title });
@@ -35,6 +33,10 @@ const ListItem = ({
   const handleCompletedChange = (completed: boolean) => {
     onUpdateTodo({ completed });
   };
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   const isEditing = editScreenVisible && selectedTodo?.id === item.id;
 
@@ -91,6 +93,7 @@ function createStyles(
     listItemTexts: {
       gap: 2,
       color: theme.text,
+      fontSize: 16,
     },
     listItemIcon: {
       borderRadius: "100%",
@@ -99,6 +102,7 @@ function createStyles(
     listItemText: {
       fontSize: 16,
       color: theme.text,
+      fontFamily: "Inter_500Medium_Italic",
     },
     listItemSmallText: {
       fontSize: 12,

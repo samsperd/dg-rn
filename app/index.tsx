@@ -1,28 +1,21 @@
 import ListItem from "@/components/list-item";
 import TodoInputContainer from "@/components/todo-input-container";
 import { Colors } from "@/constants/Colors";
+import { ThemeContext } from "@/context/ThemeContext";
 import { data } from "@/data/todos";
 import { Todo } from "@/types/Todo";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-import {
-  Appearance,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { useContext, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
-  const colorScheme = Appearance.getColorScheme();
+  const { colorScheme, theme } = useContext(ThemeContext);
   const [todos, setTodos] = useState(data.sort((a, b) => b.id - a.id));
 
   const [editScreenVisible, setEditScreenVisible] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
-  const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
   const styles = createStyles(theme, colorScheme!);
 
   const separatorComp = () => <View style={styles.separator} />;
