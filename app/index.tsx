@@ -1,47 +1,56 @@
-import ListItem from "@/components/list-item";
+import List from "@/components/list";
 import TodoInputContainer from "@/components/todo-input-container";
 import { Colors } from "@/constants/Colors";
 import { ThemeContext } from "@/context/ThemeContext";
 import { data } from "@/data/todos";
 import { Todo } from "@/types/Todo";
-import { Ionicons } from "@expo/vector-icons";
-import { useContext, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useContext, useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import Animated, { LinearTransition } from "react-native-reanimated";
 
 export default function Index() {
   const { colorScheme, theme } = useContext(ThemeContext);
-  const [todos, setTodos] = useState(data.sort((a, b) => b.id - a.id));
+  const [todos, setTodos] = useState<Todo[]>([]);
 
-  const [editScreenVisible, setEditScreenVisible] = useState(false);
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
-  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem("TodoApp");
+
+        const storageTodos: Todo[] =
+          jsonValue !== null ? JSON.parse(jsonValue) : null;
+
+        if (storageTodos && storageTodos?.length) {
+          setTodos(storageTodos.sort((a, b) => b.id - a.id));
+        } else {
+          setTodos(data.sort((a, b) => b.id - a.id));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [data]);
+
+  useEffect(() => {
+    const storeData = async () => {
+      try {
+        const jsonValue = JSON.stringify(todos);
+
+        await AsyncStorage.setItem("TodoApp", jsonValue);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    storeData();
+  }, [todos]);
 
   const styles = createStyles(theme, colorScheme!);
 
   const separatorComp = () => <View style={styles.separator} />;
-
-  const handleUpdateTodo = (id: number, updates: Partial<Todo>) => {
-    setTodos(
-      todos.map((todo) => (todo.id === id ? { ...todo, ...updates } : todo)),
-    );
-  };
-
-  const handleEditingTodoChange = (updates: Partial<Todo>) => {
-    if (!editingTodo) return;
-    setEditingTodo({ ...editingTodo, ...updates });
-  };
-
-  const handleEditTodo = (todo: Todo) => {
-    setEditScreenVisible(true);
-    setSelectedTodo(todo);
-    setEditingTodo(todo);
-  };
-
-  const confirmDelete = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-    setSelectedTodo(null);
-    setEditScreenVisible(false);
-  };
 
   const addNewTodo = (title: string) => {
     const newId = todos.length > 0 ? todos[0].id + 1 : 1;
@@ -61,48 +70,16 @@ export default function Index() {
       <TodoInputContainer onAddTodo={addNewTodo} />
 
       <View style={styles.listSection}>
-        <FlatList
+        <Animated.FlatList
           data={todos}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={separatorComp}
           contentContainerStyle={styles.listContainer}
           keyExtractor={(item) => item.id.toString()}
+          itemLayoutAnimation={LinearTransition}
+          keyboardDismissMode={"on-drag"}
           renderItem={({ item }) => (
-            <View style={styles.list}>
-              <ListItem
-                item={item}
-                onUpdateTodo={handleEditingTodoChange}
-                editScreenVisible={editScreenVisible}
-                selectedTodo={editingTodo}
-              />
-
-              <View style={styles.listItemActions}>
-                {editScreenVisible && selectedTodo?.id === item.id ? (
-                  <Pressable
-                    onPress={() => {
-                      if (selectedTodo && editingTodo) {
-                        handleUpdateTodo(selectedTodo.id, editingTodo);
-                      }
-                      setEditScreenVisible(false);
-                      setSelectedTodo(null);
-                      setEditingTodo(null);
-                    }}
-                    style={styles.button}
-                  >
-                    <Text>Done</Text>
-                  </Pressable>
-                ) : (
-                  <>
-                    <Pressable onPress={() => handleEditTodo(item)}>
-                      <Ionicons name="pencil" size={20} color={theme.text} />
-                    </Pressable>
-                    <Pressable onPress={() => confirmDelete(item.id)}>
-                      <Ionicons name="trash" size={20} color="red" />
-                    </Pressable>
-                  </>
-                )}
-              </View>
-            </View>
+            <List item={item} todos={todos} setTodos={setTodos} />
           )}
         />
       </View>
@@ -117,31 +94,18 @@ function createStyles(
   return StyleSheet.create({
     container: {
       flex: 1,
-      // flexDirection: "column",
       backgroundColor: theme.background,
     },
-    button: {
-      backgroundColor: "#aaa",
-      padding: 10,
-      borderRadius: 10,
-      height: 45,
-      justifyContent: "center",
-      alignItems: "center",
-    },
+
     listSection: {
       flex: 1,
     },
 
     listContainer: {
       paddingVertical: 15,
-      // flexDirection: "row",
       width: "100%",
     },
-    list: {
-      padding: 10,
-      flexDirection: "row",
-      justifyContent: "space-between",
-    },
+
     separator: {
       height: 1,
       backgroundColor: colorScheme === "dark" ? "#ccc" : "#000",
@@ -149,12 +113,6 @@ function createStyles(
       // maxWidth: 300,
       marginHorizontal: "auto",
       marginVertical: 10,
-    },
-
-    listItemActions: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 7,
     },
   });
 }
