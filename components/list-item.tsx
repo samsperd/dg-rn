@@ -5,25 +5,21 @@ import { Inter_500Medium_Italic, useFonts } from "@expo-google-fonts/inter";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useRouter } from "expo-router";
 import React, { useContext } from "react";
-import { StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 dayjs.extend(relativeTime);
 
 interface ListItemProps {
   item: Todo;
   onUpdateTodo: (updates: Partial<Todo>) => void;
-  editScreenVisible: boolean;
   selectedTodo: Todo | null;
 }
 
-const ListItem = ({
-  item,
-  onUpdateTodo,
-  editScreenVisible,
-  selectedTodo,
-}: ListItemProps) => {
+const ListItem = ({ item, onUpdateTodo, selectedTodo }: ListItemProps) => {
   const { colorScheme, theme } = useContext(ThemeContext);
+  const router = useRouter();
   const styles = createStyles(theme, colorScheme!);
 
   const [loaded, error] = useFonts({
@@ -38,35 +34,20 @@ const ListItem = ({
     onUpdateTodo({ completed });
   };
 
+  const handleTodoRouting = () => {
+    router.push(`/todo/${item.id}`);
+  };
+
   if (!loaded && !error) {
     return null;
   }
 
-  const isEditing = editScreenVisible && selectedTodo?.id === item.id;
-
-  return isEditing ? (
-    <View style={styles.listItem}>
-      <View style={styles.listItemIcon}>
-        <Switch
-          trackColor={{ false: "#767577", true: "black" }}
-          thumbColor={selectedTodo?.completed ? "green" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={handleCompletedChange}
-          value={selectedTodo?.completed}
-        />
-      </View>
-
-      <View style={styles.listItemTexts}>
-        <TextInput
-          value={selectedTodo?.title}
-          style={[styles.listItemText, styles.listItemInput]}
-          onChangeText={handleTitleChange}
-          placeholder="Enter title"
-        />
-      </View>
-    </View>
-  ) : (
-    <View style={styles.listItem}>
+  return (
+    <Pressable
+      onPress={() => handleTodoRouting()}
+      onLongPress={() => handleCompletedChange(!item.completed)}
+      style={styles.listItem}
+    >
       <View style={styles.listItemIcon}>
         {item.completed ? (
           <Ionicons name="checkmark-circle" size={20} color="green" />
@@ -81,7 +62,7 @@ const ListItem = ({
           {dayjs(item.timestamp).fromNow()}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 };
 
