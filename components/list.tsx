@@ -2,7 +2,7 @@ import { ThemeContext } from "@/context/ThemeContext";
 import { Todo } from "@/types/Todo";
 import { Ionicons } from "@expo/vector-icons";
 import React, { Dispatch, SetStateAction, useContext, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import ListItem from "./list-item";
 
 interface ListTodos {
@@ -43,36 +43,14 @@ const List = ({ todos, setTodos, item }: ListTodos) => {
     <View style={styles.list}>
       <ListItem
         item={item}
-        onUpdateTodo={handleEditingTodoChange}
-        editScreenVisible={editScreenVisible}
+        onUpdateTodo={(updates) => handleUpdateTodo(item.id, updates)}
         selectedTodo={editingTodo}
       />
 
       <View style={styles.listItemActions}>
-        {editScreenVisible && selectedTodo?.id === item.id ? (
-          <Pressable
-            onPress={() => {
-              if (selectedTodo && editingTodo) {
-                handleUpdateTodo(selectedTodo.id, editingTodo);
-              }
-              setEditScreenVisible(false);
-              setSelectedTodo(null);
-              setEditingTodo(null);
-            }}
-            style={styles.button}
-          >
-            <Text>Done</Text>
-          </Pressable>
-        ) : (
-          <>
-            <Pressable onPress={() => handleEditTodo(item)}>
-              <Ionicons name="pencil" size={20} color={theme.text} />
-            </Pressable>
-            <Pressable onPress={() => confirmDelete(item.id)}>
-              <Ionicons name="trash" size={20} color="red" />
-            </Pressable>
-          </>
-        )}
+        <Pressable onPress={() => confirmDelete(item.id)}>
+          <Ionicons name="close" size={18} color="#bbb" />
+        </Pressable>
       </View>
     </View>
   );
