@@ -54,6 +54,7 @@ function AppContent() {
             ),
           }}
         />
+        <Stack.Screen name="todo/[id]" />
       </Stack>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
     </SafeAreaProvider>
