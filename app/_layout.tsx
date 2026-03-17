@@ -54,7 +54,13 @@ function AppContent() {
             ),
           }}
         />
-        <Stack.Screen name="todo/[id]" />
+        <Stack.Screen
+          options={{
+            headerTintColor: colorScheme === "dark" ? theme.tint : "#000",
+            headerStyle: { backgroundColor: theme.background },
+          }}
+          name="todo/[id]"
+        />
       </Stack>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
     </SafeAreaProvider>
